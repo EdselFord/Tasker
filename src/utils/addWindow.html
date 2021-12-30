@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="../../node_modules/bootstrap/dist/css/bootstrap.min.css"
+    />
+    <title>Add Task</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="display-5">Add Task</h1>
+      <form>
+        <div class="mb-3">
+          <label for="input-task" class="form-label">Task</label>
+          <input type="text" class="form-control" id="input-task" />
+        </div>
+        <div class="mb-3">
+          <label for="input-desc" class="form-label">Description</label>
+          <input type="text" class="form-control" id="input-desc" />
+        </div>
+        <button type="submit" class="btn btn-primary">Add</button>
+      </form>
+    </div>
+
+    <script>
+      const { ipcRenderer } = require("electron");
+
+      function getTime() {
+        let a = new Date();
+        let b = a.getHours() < 10 ? `0${a.getHours()}` : a.getHours();
+        let c = a.getMinutes() < 10 ? `0${a.getMinutes()}` : a.getMinutes();
+        return `${b}:${c}`;
+      }
+
+      document.querySelector("form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        let tanggal = new Date();
+        let data = {
+          task: document.getElementById("input-task").value,
+          desc: document.getElementById("input-desc").value,
+          time: getTime(),
+        };
+        ipcRenderer.send("task:add", data);
+      });
+    </script>
+  </body>
+</html>
