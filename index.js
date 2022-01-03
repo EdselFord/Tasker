@@ -1,8 +1,11 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const path = require("path");
+const { app, BrowserWindow, ipcMain, Tray, screen } = require("electron");
 const { readJSON, writeJSON } = require("json-reader-writer");
 
 let mainWindow;
 let addWindow;
+let miniWindow;
+let tray;
 
 app.on("ready", () => {
   mainWindow = new BrowserWindow({
@@ -13,10 +16,58 @@ app.on("ready", () => {
   });
   mainWindow.loadURL(`file://${__dirname}/src/index.html`);
   mainWindow.on("closed", () => app.quit());
+
+  miniWindow = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
+    show: false,
+    width: 202,
+    height: 209,
+    frame: false,
+    resizable: false,
+  });
+  miniWindow.loadURL(`file://${__dirname}/src/utils/miniWindow.html`);
+  miniWindow.on("closed", () => app.quit());
+
+  const fileName =
+    process.platform == "darwin" ? "iconTemplate.png" : "windows-icon.png";
+
+  const filePath = path.join(__dirname, `src/assets/${fileName}`);
+
+  tray = new Tray(filePath);
+
+  tray.on("click", (event, bounds) => {
+    const { x, y } = screen.getCursorScreenPoint();
+
+    const { height, width } = miniWindow.getBounds();
+    if (miniWindow.isVisible()) {
+      miniWindow.hide();
+    } else {
+      const yPosition =
+        process.platform === "darwin" || process.platform === "linux"
+          ? y
+          : process.platform === "win32"
+          ? y - height
+          : undefined;
+
+      if (yPosition !== undefined) {
+        miniWindow.setBounds({
+          x: x - width / 2,
+          y: yPosition,
+          width,
+          height,
+        });
+      }
+      miniWindow.show();
+    }
+  });
 });
 
 ipcMain.on("mainWindow:ready", () => {
   mainWindow.webContents.send("task:get", readJSON("list.json").data);
+  miniWindow.webContents.send("task:get", readJSON("list.json").data);
 });
 
 ipcMain.on("window:add", () => {

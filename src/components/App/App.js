@@ -12,7 +12,7 @@ function App() {
         +
       </a>
       <h1 className="display-4 text-center">Tasker</h1>
-      <Task />
+      <Task isFor="main" />
     </div>
   );
 }

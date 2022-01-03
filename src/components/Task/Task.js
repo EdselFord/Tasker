@@ -1,8 +1,29 @@
 import React from "react";
 import "./Task.css";
 
-function Task() {
-  return (
+function Task(props) {
+  return props.isFor == "mini" ? (
+    <div className="container">
+      {taskList.length !== 0 ? (
+        <div className="list-group mt-3">
+          <h6 className="lead fs-6">Current Task : </h6>
+          <div className="list-group-item list-group-item-action latar-belakang-gelap">
+            <div className="d-flex w-100 justify-content-between">
+              <h5 className="mb-1 text-overflow-ellipsis">
+                {taskList[0].task}
+              </h5>
+              <small>{taskList[0].time}</small>
+            </div>
+            <p className="mb-1 text-overflow-ellipsis">{taskList[0].desc}</p>
+          </div>
+        </div>
+      ) : (
+        <div className="position-absolute top-50 start-50 translate-middle">
+          <h1>Task Empty</h1>
+        </div>
+      )}
+    </div>
+  ) : (
     <div className="container">
       {taskList.length !== 0 ? (
         <div className="list-group">
